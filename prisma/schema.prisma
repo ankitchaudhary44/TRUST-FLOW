@@ -1,0 +1,164 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               String             @id @default(uuid())
+  email            String             @unique
+  passwordHash     String
+  role             String
+  trustState       String
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+  accounts         Account[]
+  devices          Device[]
+  beneficiaries    Beneficiary[]
+  sessions         Session[]
+  securityEvents   SecurityEvent[]
+  auditLogs        AuditLog[]
+  customerBaseline CustomerBaseline?
+  agentAuthorizations AgentAuthorization[]
+}
+
+model Account {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  accountNumber String        @unique
+  balance       Float
+  currency      String
+  transactionsFrom Transaction[] @relation("sourceAccount")
+  transactionsTo   Transaction[] @relation("beneficiaryAccount")
+}
+
+model Transaction {
+  id               String          @id @default(uuid())
+  sourceAccountId  String
+  sourceAccount    Account         @relation("sourceAccount", fields: [sourceAccountId], references: [id])
+  beneficiaryId    String?
+  beneficiary      Beneficiary?    @relation(fields: [beneficiaryId], references: [id])
+  amount           Float
+  status           String
+  deviceId         String?
+  device           Device?         @relation(fields: [deviceId], references: [id])
+  timestamp        DateTime        @default(now())
+  riskAssessment   RiskAssessment?
+  Account          Account?        @relation("beneficiaryAccount", fields: [accountId], references: [id])
+  accountId        String?
+}
+
+model Beneficiary {
+  id            String        @id @default(uuid())
+  userId        String
+  user          User          @relation(fields: [userId], references: [id])
+  name          String
+  accountNumber String
+  createdAt     DateTime      @default(now())
+  transactions  Transaction[]
+}
+
+model Device {
+  id             String          @id @default(uuid())
+  userId         String
+  user           User            @relation(fields: [userId], references: [id])
+  deviceName     String
+  ipAddress      String
+  isTrusted      Boolean
+  lastSeen       DateTime
+  transactions   Transaction[]
+  securityEvents SecurityEvent[]
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  token        String   @unique
+  createdAt    DateTime @default(now())
+  expiresAt    DateTime
+}
+
+model SecurityEvent {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  eventType String
+  deviceId  String?
+  device    Device?  @relation(fields: [deviceId], references: [id])
+  timestamp DateTime @default(now())
+}
+
+model RiskAssessment {
+  id            String       @id @default(uuid())
+  transactionId String       @unique
+  transaction   Transaction  @relation(fields: [transactionId], references: [id])
+  riskScore     Int
+  riskLevel     String
+  primaryReason String
+  factors       RiskFactor[]
+  alert         Alert?
+}
+
+model RiskFactor {
+  id           String         @id @default(uuid())
+  assessmentId String
+  assessment   RiskAssessment @relation(fields: [assessmentId], references: [id])
+  factorName   String
+  contribution Float
+}
+
+model Alert {
+  id             String          @id @default(uuid())
+  assessmentId   String          @unique
+  assessment     RiskAssessment  @relation(fields: [assessmentId], references: [id])
+  status         String
+  createdAt      DateTime        @default(now())
+  investigation  Investigation?
+}
+
+model Investigation {
+  id                String   @id @default(uuid())
+  alertId           String   @unique
+  alert             Alert    @relation(fields: [alertId], references: [id])
+  analystId         String
+  status            String
+  aiSummary         String
+  recommendedAction String
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  action    String
+  resource  String
+  timestamp DateTime @default(now())
+}
+
+model CustomerBaseline {
+  id               String @id @default(uuid())
+  userId           String @unique
+  user             User   @relation(fields: [userId], references: [id])
+  medianAmount     Float
+  stdDevAmount     Float
+  typicalFrequency Int
+}
+
+model AgentAuthorization {
+  id                        String   @id @default(uuid())
+  ownerId                   String
+  owner                     User     @relation(fields: [ownerId], references: [id])
+  agentName                 String
+  authorizedCategories      String
+  allowedMerchants          String
+  maximumTransactionAmount  Float
+  expiry                    DateTime
+  currentRiskScore          Int      @default(0)
+  createdAt                 DateTime @default(now())
+  isActive                  Boolean  @default(true)
+}

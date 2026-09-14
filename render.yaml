@@ -1,0 +1,21 @@
+services:
+  - type: web
+    name: trustflow-api
+    env: node
+    buildCommand: npm install && cd apps/api && npm run build
+    startCommand: cd apps/api && npm start
+    envVars:
+      - key: DATABASE_URL
+        value: file:./dev.db
+      - key: JWT_SECRET
+        value: super_secret_jwt_key_123
+      - key: ML_SERVICE_URL
+        value: https://trustflow-ml.onrender.com
+      - key: GEMINI_API_KEY
+        sync: false
+
+  - type: web
+    name: trustflow-ml
+    env: python
+    buildCommand: cd apps/ml-service && pip install -r requirements.txt
+    startCommand: cd apps/ml-service && gunicorn app.main:app
