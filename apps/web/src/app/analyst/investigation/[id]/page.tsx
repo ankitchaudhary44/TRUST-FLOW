@@ -23,7 +23,7 @@ export default function InvestigationPage({ params }: { params: { id: string } }
     const token = localStorage.getItem('token');
     if (!token) return;
 
-    fetch(`http://localhost:4000/api/analyst/alerts/${params.id}`, {
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/analyst/alerts/${params.id}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     })
       .then(res => {
@@ -43,7 +43,7 @@ export default function InvestigationPage({ params }: { params: { id: string } }
     setError(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:4000/api/ai/investigate/${params.id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/ai/investigate/${params.id}`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

@@ -32,8 +32,8 @@ export default function TransferPage() {
   const fetchData = async (authToken: string) => {
     try {
       const [balanceRes, historyRes] = await Promise.all([
-        fetch('http://localhost:4000/api/customer/balance', { headers: { 'Authorization': `Bearer ${authToken}` } }),
-        fetch('http://localhost:4000/api/transactions/history', { headers: { 'Authorization': `Bearer ${authToken}` } })
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/customer/balance`, { headers: { 'Authorization': `Bearer ${authToken}` } }),
+        fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/transactions/history`, { headers: { 'Authorization': `Bearer ${authToken}` } })
       ]);
       const balanceData = await balanceRes.json();
       setBalance(balanceData.balance);
@@ -78,7 +78,7 @@ export default function TransferPage() {
     try {
       if (!token) throw new Error('No auth token available.');
 
-      const res = await fetch('http://localhost:4000/api/transactions/evaluate', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/transactions/evaluate`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
@@ -126,7 +126,7 @@ export default function TransferPage() {
 
   const executeTransaction = async (riskAssessmentData: RiskResult) => {
     try {
-      const res = await fetch('http://localhost:4000/api/transactions/create', {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/transactions/create`, {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',

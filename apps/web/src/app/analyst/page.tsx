@@ -45,8 +45,8 @@ export default function AnalystDashboard() {
     const fetchAlertsAndMetrics = async () => {
       try {
         const [alertsRes, metricsRes] = await Promise.all([
-          fetch('http://localhost:4000/api/analyst/alerts', { headers: { 'Authorization': `Bearer ${token}` } }),
-          fetch('http://localhost:4000/api/analyst/dashboard', { headers: { 'Authorization': `Bearer ${token}` } })
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/analyst/alerts`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/analyst/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } })
         ]);
         
         if (alertsRes.status === 401 || metricsRes.status === 401) {
