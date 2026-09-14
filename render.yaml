@@ -2,6 +2,7 @@ services:
   - type: web
     name: trustflow-api
     env: node
+    plan: free
     buildCommand: npm install && cd apps/api && npm run build
     startCommand: cd apps/api && npm start
     envVars:
@@ -17,5 +18,6 @@ services:
   - type: web
     name: trustflow-ml
     env: python
+    plan: free
     buildCommand: cd apps/ml-service && pip install -r requirements.txt
     startCommand: cd apps/ml-service && gunicorn app.main:app
