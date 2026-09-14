@@ -21,3 +21,6 @@ services:
     plan: free
     buildCommand: cd apps/ml-service && pip install -r requirements.txt
     startCommand: cd apps/ml-service && gunicorn app.main:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.8
